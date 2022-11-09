@@ -8,7 +8,9 @@ const TodoList = (props: any) => {
         handleAll,
         handleDone,
         dispatch,
-        handleDeleteAll
+        handleDeleteAll,
+        handleTodo,
+        handleDeleteDone
     } = props
 
     const [list, setList] = useState([])
@@ -31,7 +33,10 @@ const TodoList = (props: any) => {
                     }}
                 >Done</button>
                 <button
-                    className="bg-green-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl">Todo</button>
+                    className="bg-green-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl"
+                    onClick={e => {
+                        handleTodo()
+                    }}>Todo</button>
             </div>
             <div className="flex flex-col">
                 <ul>
@@ -54,12 +59,18 @@ const TodoList = (props: any) => {
             </div>
             <div className="flex justify-evenly w-full py-2">
                 <button
-                    className="bg-red-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl">Delete Done Task</button>
+                    className="bg-red-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl"
+                    onClick={e => {
+                        handleDeleteDone()
+                    }}
+                    >Delete Done Task</button>
                 <button
+                    className="bg-red-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl"
                     onClick={e => {
                         handleDeleteAll()
                     }}
-                    className="bg-red-400 flex justify-center rounded-2xl p-2 pl-2 pr-2 text-xl">Delete All Task</button>
+
+                >Delete All Task</button>
             </div>
         </div>
     )
@@ -91,10 +102,10 @@ const TodoView = (props: any) => {
                             })
 
                         }} />
+
                 </div>
                 <div className="flex flex-row">
-                    <input type="checkbox"
-                        checked={todo.done} />
+
                     <button
                         className="bg-green-400 flex justify-center rounded-sm pr-2 pl-2 "
                         onClick={() => {
@@ -108,24 +119,24 @@ const TodoView = (props: any) => {
     } else {
         todoContent = (
             <div className="flex justify-evenly w-full">
-                <div>
+                <p className={todo?.status ? 'line-through' : ''}>
                     {todo.todoValue}
-                </div>
+                </p>
                 <div className="">
                     <input type="checkbox"
-                        // checked={todo.status}
+                        checked={todo.status}
                         onChange={e => {
                             const newTodo = todoState.find((_: { id: number, todoValue: string, status: boolean, }, index: number) => index === todo.id)
-  
+
                             const newList = todoState
-                            newList[todo.id] = {id: newTodo.id, todoValue:newTodo.todoValue, status: e.target.checked}
+                            newList[todo.id] = { id: newTodo.id, todoValue: newTodo.todoValue, status: e.target.checked }
 
                             dispatch({
                                 type: 'todo_checked',
-                                arr: newList
+                                newList: [...newList]
                             })
 
-                        }}/>
+                        }} />
                     <button
                         onClick={() => {
                             setIsEditing(true)
@@ -144,7 +155,7 @@ const TodoView = (props: any) => {
         )
     }
     return (
-        <div className="flex flex-row w-full">
+        <div className="flex flex-row w-full justify-evenly">
             {todoContent}
         </div>
     )

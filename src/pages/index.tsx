@@ -7,16 +7,18 @@ export default function Home() {
   const [todoState, dispatch] = useReducer(reducer, initialValue)
   const [todoClone, setTodoClone] = useState(todoState)
 
-  console.log(todoState, todoClone)
+
+  console.log(todoState, 'todoState')
+  console.log(todoClone, 'todoClone')
   //input value is routed here
   const handleAdd = (todo: any) => {
     //handle add will run dispatch function with value type, id, and value from input
-      dispatch({
-        type: ACTION.ADD_TODO,
-        id: nextId++,
-        todoValue: todo,
-      })
-    
+    dispatch({
+      type: ACTION.ADD_TODO,
+      id: nextId++,
+      todoValue: todo,
+    })
+
   }
 
   const handleEdit = (todo: { id: number, todoValue: string, status: boolean }) => {
@@ -36,42 +38,41 @@ export default function Home() {
 
   const handleAll = () => {
     setTodoClone(todoState)
-    dispatch({
-      type: ACTION.HANDLE_ALL,
-      arr: todoClone
-    })
-    console.log(todoClone)
   }
 
-  const handleDone = (idx: any) => {
-    const updated = todoState.filter((_:{id: number, todoValue: string, status: boolean}, index: number)=> index === idx )
-
+  const handleDone = () => {
+    const updated = todoState.filter((todo: { id: number, todoValue: string, status: boolean }, index: number) => todo.status)
+    // set todostate filter to todoClone usestate
     setTodoClone(updated)
-    dispatch({
-      type: ACTION.DONE,
-      id: todoClone.id,
-      todoValue: todoClone.todoValue,
-      status: todoClone.status,
-    })
-
 
   }
-
+  // filters state false status when pressing todo button, 
   const handleTodo = () => {
+    const done = todoState.filter((todo: { id: number, todoValue: string, status: boolean }) => !todo.status)
+    setTodoClone(done)
 
   }
-
+  //Deletes Done Tasks
   const handleDeleteDone = () => {
+    const done = todoState.filter((todo: { id: number, todoValue: string, status: boolean }) => !todo.status)
 
+    dispatch({
+      type: ACTION.DELETE_ALL_DONE,
+      done: [...done]
+
+    })
   }
   //Delete all
-  const handleDeleteAll = () => {   
+  const handleDeleteAll = () => {
     dispatch({
       type: ACTION.DELETE_ALL,
     })
   }
 
-  // console.log(todoState)
+  useEffect(() => {
+    if (todoState) setTodoClone(todoState)
+  }, [todoState])
+
   return (
     <div className="bg-black h-screen w-full">
       <div className=' flex flex-row justify-center p-5'>
@@ -80,13 +81,16 @@ export default function Home() {
             handleAdd={handleAdd}
           />
           <TodoList
-            todoState={todoState}
+            todoState={todoClone}
+
             handleEdit={handleEdit}
             handleDelete={handleDelete}
             handleAll={handleAll}
             handleDone={handleDone}
             dispatch={dispatch}
             handleDeleteAll={handleDeleteAll}
+            handleTodo={handleTodo}
+            handleDeleteDone={handleDeleteDone}
           />
         </div>
       </div>
@@ -100,9 +104,9 @@ const ACTION = {
   EDIT_TODO: 'change_todo',
   DELETE_TODO: 'delete_todo',
   HANDLE_ALL: 'handle_all',
-  DONE: 'done',
   TODO_CHECKED: 'todo_checked',
-  DELETE_ALL: 'delete_all'
+  DELETE_ALL: 'delete_all',
+  DELETE_ALL_DONE: 'delete_all_done',
 }
 
 const reducer = (state: any, action: any) => {
@@ -134,20 +138,18 @@ const reducer = (state: any, action: any) => {
     }
 
     case ACTION.HANDLE_ALL: {
-      return action.arr
-    }
-  
-
-    case ACTION.DONE: {
-      return 
+      return [...state]
     }
 
     case ACTION.TODO_CHECKED:
-      return action.arr
+      return action.newList
 
     case ACTION.DELETE_ALL:
-      return []
-      
+      return state = []
+
+    case ACTION.DELETE_ALL_DONE:
+      return action.done
+
     default:
       return state
   }
@@ -155,5 +157,5 @@ const reducer = (state: any, action: any) => {
 
 var nextId = 2;
 const initialValue = [
-  { id: 0, todoValue: 'How to do it', status: false },
+  { id: 0, todoValue: 'How to do it', status: true },
   { id: 1, todoValue: 'hehe', status: false }]
